@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Risk Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Student Performance Risk Detector</h1>
+        <form method="POST">
+            <div class="input-group">
+    <label>Attendance (%) <span class="max">/100</span></label>
+    <input type="number" step="any" name="attendance" required>
+</div>
+
+<div class="input-group">
+    <label>Internal Marks <span class="max">/30</span></label>
+    <input type="number" step="any" name="internal_marks" required>
+</div>
+
+<div class="input-group">
+    <label>Assignment Score <span class="max">/10</span></label>
+    <input type="number" step="any" name="assignment_score" required>
+</div>
+
+<div class="input-group">
+    <label>Study Hours Per Day <span class="max">/24</span></label>
+    <input type="number" step="any" name="study_hours" required>
+</div>
+
+<div class="input-group">
+    <label>Number of Backlogs</label>
+    <input type="number" step="any" name="backlogs" required>
+</div>
+            <button type="submit">Predict Risk</button>
+        </form>
+
+        {% if prediction %}
+            <div class="result">
+                <h2>Prediction: {{ prediction }}</h2>
+                {% if confidence %}
+                    <p>Confidence: {{ confidence }}%</p>
+                {% endif %}
+            </div>
+            <h2>{{ prediction }}</h2>
+
+    <p>
+        <strong>Risk Percentage:</strong>
+        {{ risk_percentage }}%
+    </p>
+
+    <p>
+        <strong>Prediction Confidence:</strong>
+        {{ confidence }}%
+    </p>
+        {% endif %}
+    </div>
+</body>
+</html>
