@@ -7,55 +7,156 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Student Performance Risk Detector</h1>
-        <form method="POST">
-            <div class="input-group">
-    <label>Attendance (%) <span class="max">/100</span></label>
-    <input type="number" step="any" name="attendance" required>
-</div>
-
-<div class="input-group">
-    <label>Internal Marks <span class="max">/30</span></label>
-    <input type="number" step="any" name="internal_marks" required>
-</div>
-
-<div class="input-group">
-    <label>Assignment Score <span class="max">/10</span></label>
-    <input type="number" step="any" name="assignment_score" required>
-</div>
-
-<div class="input-group">
-    <label>Study Hours Per Day <span class="max">/24</span></label>
-    <input type="number" step="any" name="study_hours" required>
-</div>
-
-<div class="input-group">
-    <label>Number of Backlogs</label>
-    <input type="number" step="any" name="backlogs" required>
-</div>
-            <button type="submit">Predict Risk</button>
-        </form>
-
-        {% if prediction %}
-            <div class="result">
-                <h2>Prediction: {{ prediction }}</h2>
-                {% if confidence %}
-                    <p>Confidence: {{ confidence }}%</p>
-                {% endif %}
+    <div class="page-shell">
+        <div class="container">
+            <div class="hero">
+                <div class="hero-badge">AI Student Analytics</div>
+                <h1>Student Performance Risk Detector</h1>
+                <p>
+                    Enter key academic indicators to estimate student risk level,
+                    view instant analysis, and get practical improvement suggestions.
+                </p>
             </div>
-            <h2>{{ prediction }}</h2>
 
-    <p>
-        <strong>Risk Percentage:</strong>
-        {{ risk_percentage }}%
-    </p>
+            {% if error %}
+            <div class="alert-box">
+                {{ error }}
+            </div>
+            {% endif %}
 
-    <p>
-        <strong>Prediction Confidence:</strong>
-        {{ confidence }}%
-    </p>
-        {% endif %}
+            <form method="POST" class="risk-form">
+                <div class="form-group">
+                    <label for="attendance">Attendance</label>
+                    <div class="input-wrap">
+                        <input type="number" step="any" min="0" max="100" name="attendance" id="attendance" placeholder="Enter attendance" value="{{ form_data.attendance }}" required>
+                        <span class="input-suffix">/100</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="internal_marks">Internal Marks</label>
+                    <div class="input-wrap">
+                        <input type="number" step="any" min="0" max="30" name="internal_marks" id="internal_marks" placeholder="Enter internal marks" value="{{ form_data.internal_marks }}" required>
+                        <span class="input-suffix">/30</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="assignment_score">Assignment Score</label>
+                    <div class="input-wrap">
+                        <input type="number" step="any" min="0" max="10" name="assignment_score" id="assignment_score" placeholder="Enter assignment score" value="{{ form_data.assignment_score }}" required>
+                        <span class="input-suffix">/10</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="study_hours">Study Hours Per Day</label>
+                    <div class="input-wrap">
+                        <input type="number" step="any" min="0" max="24" name="study_hours" id="study_hours" placeholder="Enter study hours" value="{{ form_data.study_hours }}" required>
+                        <span class="input-suffix">/24</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="backlogs">Number of Backlogs</label>
+                    <div class="input-wrap">
+                        <input type="number" step="any" min="0" max="20" name="backlogs" id="backlogs" placeholder="Enter number of backlogs" value="{{ form_data.backlogs }}" required>
+                        <span class="input-suffix">count</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="predict-btn">Predict Risk</button>
+            </form>
+
+            {% if result %}
+            <section class="analysis-card">
+                <div class="analysis-top">
+                    <div class="risk-badge
+                        {% if result.prediction == 'Low Risk' %}badge-low
+                        {% elif result.prediction == 'Moderate Risk' %}badge-medium
+                        {% else %}badge-high{% endif %}">
+                        {{ result.prediction }}
+                    </div>
+
+                    <h2>Prediction Analysis</h2>
+                    <p>{{ result.status_text }}</p>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="stat-label">Risk Percentage</span>
+                        <span class="stat-value">{{ result.risk_percentage }}%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Model Confidence</span>
+                        <span class="stat-value">{{ result.confidence }}%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Backlogs</span>
+                        <span class="stat-value">{{ result.backlogs }}</span>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>Academic Risk Meter</span>
+                        <span>{{ result.risk_percentage }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill
+                            {% if result.prediction == 'Low Risk' %}fill-low
+                            {% elif result.prediction == 'Moderate Risk' %}fill-medium
+                            {% else %}fill-high{% endif %}"
+                            style="width: {{ result.risk_percentage }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="info-box">
+                        <h3>Attendance Impact</h3>
+                        <p>{{ result.score_breakdown.attendance_impact }}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Marks Impact</h3>
+                        <p>{{ result.score_breakdown.marks_impact }}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Assignment Impact</h3>
+                        <p>{{ result.score_breakdown.assignment_impact }}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Study Hours Impact</h3>
+                        <p>{{ result.score_breakdown.study_impact }}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Backlog Impact</h3>
+                        <p>{{ result.score_breakdown.backlog_impact }}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Entered Snapshot</h3>
+                        <p>
+                            Attendance: {{ result.attendance }}<br>
+                            Internal Marks: {{ result.internal_marks }}<br>
+                            Assignment Score: {{ result.assignment_score }}<br>
+                            Study Hours: {{ result.study_hours }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="suggestion-box">
+                    <h3>3-Line Suggestion Plan</h3>
+                    <p>{{ result.suggestions[0] }}</p>
+                    <p>{{ result.suggestions[1] }}</p>
+                    <p>{{ result.suggestions[2] }}</p>
+                </div>
+            </section>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
